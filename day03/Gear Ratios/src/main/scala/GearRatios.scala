@@ -48,12 +48,22 @@ def getSumOfEngineParts(inputResource: String): Int =
         if isPartNumber then
           partsSum += number;
         else
-          println(s"Number ${number} at (${r},${c}) is not part of the engine")
+          println(s"Number ${number} at ${r+1} is not part of the engine")
         end if
 
         isDigit = false
         isPartNumber = false
       end if
+    end for
+
+    if isDigit then
+      //number ends, add it?
+      if isPartNumber then
+        partsSum += number;
+      else
+        println(s"Number ${number} at ${r+1} is not part of the engine")
+      end if
+    end if
 
   partsSum
 
