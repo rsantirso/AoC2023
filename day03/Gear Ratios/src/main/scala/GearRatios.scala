@@ -11,7 +11,7 @@ import scala.util.control.Breaks.{break, breakable}
   println("")
 
 
-  var data = Array.empty[Array[Char]]
+  var data: Array[Array[Char]] = Array.empty
   val resource = Source.fromResource("input_test.txt")
   for (l <- resource.getLines)
     data :+= l.toCharArray
@@ -22,9 +22,12 @@ import scala.util.control.Breaks.{break, breakable}
   val rows = data.length
   val cols = data(0).length
 
-  var isDigit = false
-  var number = 0
+  var partsSum = 0
+
   for (r <- 0 until rows)
+    var isDigit = false
+    var number = 0
+    var isPartNumber = false
 
     for (c <- 0 until cols)
       if data(r)(c).isDigit then
@@ -34,12 +37,32 @@ import scala.util.control.Breaks.{break, breakable}
           number = data(r)(c).toString.toInt
 
         isDigit = true
+        isPartNumber = belongsToPart(data, r, c)
+
       else if isDigit then
         //number ends, add it?
-        println("Number found " + number)
+        if isPartNumber then
+          println("Number " + number + " is part of the engine")
+          partsSum += number;
+        else
+          println("Number " + number + " is not part of the engine")
+
         isDigit = false
+        isPartNumber = false
+
+  println("Total sum of parts is " + partsSum)
 
 
+def belongsToPart(data: Array[Array[Char]], r: Int, c: Int): Boolean =
+  val targetPositions: Array[(Int, Int)] = getSurroundingCoordinates(data.length, data(0).length, r, c)
+  targetPositions.map(getValue(data, _)).exists(isSymbol)
 
+def getValue(data: Array[Array[Char]], xy: (Int, Int)): Char =
+  data(xy(0))(xy(1))
 
-  println("aa")
+def getSurroundingCoordinates(totalRows: Int, totalCols: Int, r: Int, c: Int): Array[(Int, Int)] =
+  var array: Array[(Int, Int)] = Array.empty
+  array
+
+def isSymbol(value: Char): Boolean =
+  !value.isDigit && value != '.'
