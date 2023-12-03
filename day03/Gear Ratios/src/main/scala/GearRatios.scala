@@ -11,6 +11,7 @@ import scala.util.control.Breaks.{break, breakable}
   println("")
 
   println(s" * Test 01: total sum of engine parts, ${getSumOfEngineParts("input_test.txt")}")
+  println(s" * Puzzle 01: total sum of engine parts, ${getSumOfEngineParts("input_puzzle.txt")}")
 
 
 def getSumOfEngineParts(inputResource: String): Int =
@@ -47,7 +48,7 @@ def getSumOfEngineParts(inputResource: String): Int =
         if isPartNumber then
           partsSum += number;
         else
-          println("Number " + number + " is not part of the engine")
+          println(s"Number ${number} at (${r},${c}) is not part of the engine")
         end if
 
         isDigit = false
