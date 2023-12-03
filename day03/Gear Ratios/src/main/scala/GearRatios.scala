@@ -1,6 +1,7 @@
 package aoc.gear.ratios
 
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 import scala.util.control.Breaks.{break, breakable}
 
 @main def GearRatios(): Unit =
@@ -10,90 +11,101 @@ import scala.util.control.Breaks.{break, breakable}
   println("################################################################################")
   println("")
 
+  //4361
   println(s" * Test 01: total sum of engine parts, ${getSumOfEngineParts("input_test.txt")}")
+  //538046
   println(s" * Puzzle 01: total sum of engine parts, ${getSumOfEngineParts("input_puzzle.txt")}")
 
 
+
 def getSumOfEngineParts(inputResource: String): Int =
+  tryGetData(inputResource) match
+    case Failure(exception) => println(s"Failed. Reason: $exception"); 0
+    case Success(value) => calcSumOfEngineParts(value)
+
+
+
+def tryGetData(inputResource: String): Try[Array[Array[Char]]] =
   var data: Array[Array[Char]] = Array.empty
   val resource = Source.fromResource(inputResource)
   for (l <- resource.getLines)
     data :+= l.toCharArray
+  resource.close
 
-  //I feel better adding this
-  if data.length == 0 || data(0).length == 0 then return -1
+  if data.length == 0 || data(0).length == 0 then Failure(new RuntimeException("Input is not a matrix"))
+  else Success(data)
 
-  val rows = data.length
-  val cols = data(0).length
 
+
+def calcSumOfEngineParts(data: Array[Array[Char]]): Int =
   var partsSum = 0
 
-  for (r <- 0 until rows)
-    var isDigit = false
-    var number = 0
-    var isPartNumber = false
-
-    for (c <- 0 until cols)
-      if data(r)(c).isDigit then
-        val currentValue = data(r)(c).toString.toInt
-        number =
-          if (isDigit) then number * 10 + currentValue
-          else currentValue
-
-        isDigit = true
-        isPartNumber = isPartNumber || belongsToPart(data, r, c)
-
-      else if isDigit then
-        //number ends, add it?
-        if isPartNumber then
-          partsSum += number;
-        else
-          println(s"Number ${number} at ${r+1} is not part of the engine")
-        end if
-
-        isDigit = false
-        isPartNumber = false
-      end if
-    end for
-
-    if isDigit then
-      //number ends, add it?
-      if isPartNumber then
-        partsSum += number;
-      else
-        println(s"Number ${number} at ${r+1} is not part of the engine")
-      end if
-    end if
+  for (r <- data.indices)
+    partsSum = calcRowSumOfEngineParts(data, r, partsSum)
 
   partsSum
+
+
+
+def calcRowSumOfEngineParts(data: Array[Array[Char]], row: Int, prevPartsSum: Int): Int =
+  var isDigit = false
+  var number = 0
+  var isPartNumber = false
+  var partsSum = prevPartsSum
+
+  for (c <- data(0).indices)
+    if data(row)(c).isDigit then
+      val currentValue = data(row)(c).toString.toInt
+      number =
+        if (isDigit) then number * 10 + currentValue
+        else currentValue
+
+      isDigit = true
+      isPartNumber = isPartNumber || belongsToPart(data, row, c)
+
+    else if isDigit then
+      //number ends, add it?
+      partsSum =
+        if isPartNumber then partsSum + number
+        else partsSum
+
+      isDigit = false
+      isPartNumber = false
+    end if
+  end for
+
+  if isDigit then
+  //number ends, add it?
+    partsSum =
+      if isPartNumber then partsSum + number
+      else partsSum
+  end if
+
+  partsSum
+
 
 
 def belongsToPart(data: Array[Array[Char]], r: Int, c: Int): Boolean =
   getSurroundingCoordinates(r, c)
     .filter(isInBounds(data,_))
-    .map(getValue(data, _))
+    .map(coordinate => data(coordinate(0))(coordinate(1)))
     .exists(isSymbol)
 
+
+
 def isInBounds(matrix: Array[Array[Char]], coordinate: (Int, Int)): Boolean =
-  coordinate(0) >= 0
-    && coordinate(0) < matrix.length
-    && coordinate(1) >= 0
-    && coordinate(1) < matrix(0).length
+  (matrix.indices contains coordinate(0)) && (matrix(0).indices contains coordinate(1))
+
+
 
 def getSurroundingCoordinates(r: Int, c: Int): Array[(Int, Int)] =
-  var array: Array[(Int, Int)] = Array.empty
-  array :+= (r - 1, c -1)
-  array :+= (r - 1, c)
-  array :+= (r - 1, c + 1)
-  array :+= (r, c - 1)
-  array :+= (r, c + 1)
-  array :+= (r + 1, c - 1)
-  array :+= (r + 1, c)
-  array :+= (r + 1, c + 1)
-  array
+  Array(
+    (r - 1, c -1), (r - 1, c), (r - 1, c + 1),
+    (r, c - 1), (r, c + 1),
+    (r + 1, c - 1), (r + 1, c), (r + 1, c + 1)
+  )
 
-def getValue(data: Array[Array[Char]], xy: (Int, Int)): Char =
-  data(xy(0))(xy(1))
+
 
 def isSymbol(value: Char): Boolean =
   !value.isDigit && value != '.'
