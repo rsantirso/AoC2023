@@ -13,6 +13,8 @@ import scala.util.{Failure, Success, Try}
 
   //288
   println(s" * Test 01: product of number of ways to beat the record: ${calculateWaysToWin("input_test.txt").product}.")
+  //58***8
+  println(s" * Puzzle 01: product of number of ways to beat the record: ${calculateWaysToWin("input_puzzle.txt").product}.")
 
 
 
@@ -33,8 +35,7 @@ import scala.util.{Failure, Success, Try}
       val distances = lines.next().split(" ")
 
       val races =
-        for t: String <- times
-            d: String <- distances
+        for (t,d ) <- times zip distances
           yield Race(t.toInt, d.toInt)
 
       resource.close
