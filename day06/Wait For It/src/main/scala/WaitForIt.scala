@@ -12,13 +12,16 @@ import scala.util.{Failure, Success, Try}
   println("")
 
   //288
-  println(s" * Test 01: product of number of ways to beat the record: ${calculateWaysToWin("input_test.txt").product}.")
+  println(s" * Test 01: product of number of ways to beat the records: ${calculateWaysToWin("input_test.txt").product}.")
   //58***8
-  println(s" * Puzzle 01: product of number of ways to beat the record: ${calculateWaysToWin("input_puzzle.txt").product}.")
+  println(s" * Puzzle 01: product of number of ways to beat the records: ${calculateWaysToWin("input_puzzle.txt").product}.")
+  //71503
+  println(s" * Test 02: product of number of ways to beat the record: ${calculateWaysToWin("input_test_02.txt").product}.")
+  //
+  println(s" * Test 02: product of number of ways to beat the record: ${calculateWaysToWin("input_puzzle_02.txt").product}.")
 
 
-
-  def calculateWaysToWin(input: String): Array[Int] =
+  def calculateWaysToWin(input: String): Array[Long] =
     tryGetData(input) match
       case Failure(exception) => println(s"Failed. Reason: $exception"); Array.empty
       case Success(races) => races.map(r => r.waysToBeatTheRecord)
@@ -36,7 +39,7 @@ import scala.util.{Failure, Success, Try}
 
       val races =
         for (t,d ) <- times zip distances
-          yield Race(t.toInt, d.toInt)
+          yield Race(t.toLong, d.toLong)
 
       resource.close
       Success(races)

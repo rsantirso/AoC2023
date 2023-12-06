@@ -1,8 +1,8 @@
 package aoc.wait.forit
 
-case class Race(time: Int, distance: Int):
+case class Race(time: Long, distance: Long):
 
-  def waysToBeatTheRecord: Int =
-    (1 until time)
+  def waysToBeatTheRecord: Long =
+    (1L until time)
       .map(t => (time - t) * t)
       .count(d => d > distance)
